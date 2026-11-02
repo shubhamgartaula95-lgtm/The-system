@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>THE SYSTEM — Player Portal</title>
+<style>
+:root{--bg:#07111f;--panel:#101f33;--panel2:#142943;--cyan:#62d9ff;--blue:#278dff;--text:#edf7ff;--muted:#9bb3ca;--line:#29445f;--green:#54e0a1;--gold:#ffd36b}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(circle at top,#102b49 0,#07111f 48%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
+header{padding:22px 16px 10px;text-align:center}.eyebrow{color:var(--cyan);letter-spacing:4px;font-size:11px;font-weight:800}.brand{font-size:clamp(28px,7vw,42px);font-weight:900;letter-spacing:3px;margin:7px 0}.sub{color:var(--muted);font-size:12px}
+main{width:min(920px,100%);margin:auto;padding:12px 14px 42px}.panel{background:linear-gradient(145deg,rgba(20,41,67,.97),rgba(11,26,44,.97));border:1px solid var(--line);border-radius:17px;padding:16px;margin:12px 0;box-shadow:0 12px 35px #0003}
+h2{font-size:15px;letter-spacing:1.5px;color:var(--cyan);margin:0 0 13px}.row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.level{font-size:32px;font-weight:900;color:var(--cyan)}.muted{color:var(--muted);font-size:12px}.xpbar{height:10px;background:#263d56;border-radius:20px;overflow:hidden;margin:12px 0 6px}.xpfill{height:100%;width:0;background:linear-gradient(90deg,var(--blue),var(--cyan));transition:width .3s}
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:9px}.stat{background:#0a192b;border:1px solid var(--line);padding:12px;border-radius:12px}.stat b{display:block;margin-top:5px}
+button,select{background:#153958;color:var(--text);border:1px solid #38709a;border-radius:10px;padding:11px 14px;font-weight:700;font-size:13px;cursor:pointer}button.primary{background:linear-gradient(90deg,#087bc8,#16a8d5);border:0}button:disabled{opacity:.45;cursor:not-allowed}button.danger{background:#482a39;border-color:#8c4c65}.quest{background:#0b1b2e;border:1px solid var(--line);border-radius:12px;padding:13px;margin:9px 0}.quest small{color:var(--muted);display:block;margin-top:4px}.reward{color:var(--cyan);font-weight:800;font-size:12px;margin-top:9px}.done{color:var(--green)}
+label{font-size:12px;color:var(--muted);display:block;margin:10px 0 5px}input,select{width:100%;background:#091a2c;color:var(--text);padding:11px;border:1px solid var(--line);border-radius:9px}
+.cameraWrap{position:relative;background:#02070d;border-radius:13px;overflow:hidden;aspect-ratio:4/3;margin:10px 0}.cameraWrap video,.cameraWrap canvas{position:absolute;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}.cameraWrap canvas{pointer-events:none}.cameraMsg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;color:#b8d3e8;font-size:13px}
+.counter{font-size:42px;font-weight:900;color:var(--cyan);text-align:center}.controls{display:flex;gap:8px;flex-wrap:wrap}.controls button{flex:1}
+.notice{font-size:12px;line-height:1.5;color:var(--muted);background:#091a2c;padding:12px;border-radius:10px}.pill{font-size:10px;padding:5px 8px;border:1px solid var(--line);border-radius:20px;color:var(--green)}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:15px}
+@media(min-width:650px){.stats{grid-template-columns:repeat(4,1fr)}.two{display:grid;grid-template-columns:1fr 1fr;gap:12px}}
+</style>
+</head>
+<body>
+<header>
+  <div class="eyebrow">PLAYER PORTAL • PERSONAL TRAINING SYSTEM</div>
+  <div class="brand">THE SYSTEM</div>
+  <div class="sub">BUILD STRENGTH. COMPLETE QUESTS. LEVEL UP.</div>
+</header>
+<main>
+  <section class="panel">
+    <div class="row"><div><div class="muted">PLAYER STATUS</div><div class="level" id="level">LV. 01</div><div id="rank" class="muted">NOVICE • STARTING OUT</div></div><div style="text-align:right"><div class="muted">TOTAL EXPERIENCE</div><div class="level" id="xp">0 XP</div></div></div>
+    <div class="xpbar"><div class="xpfill" id="xpfill"></div></div><div class="row muted"><span id="xptext">0 / 300 XP to next level</span><span id="streak">Quest days: 0</span></div>
+  </section>
+
+  <section class="panel">
+    <h2>PLAYER ATTRIBUTES</h2>
+    <div class="stats">
+      <div class="stat">💪 <span class="muted">STRENGTH</span><b id="strength">Beginner</b></div>
+      <div class="stat">⚡ <span class="muted">STAMINA</span><b id="stamina">Beginner</b></div>
+      <div class="stat">🎯 <span class="muted">DISCIPLINE</span><b id="discipline">Beginner</b></div>
+      <div class="stat">🧠 <span class="muted">RECOVERY</span><b id="recovery">Beginner</b></div>
+    </div>
+  </section>
+
+  <div class="two">
+  <section class="panel">
+    <h2>DAILY QUESTS</h2>
+    <div id="quests"></div>
+    <div class="notice">Quest rewards are for consistency, not for pushing through pain. Rest days count as part of training.</div>
+  </section>
+
+  <section class="panel">
+    <h2>AI EXERCISE VERIFICATION</h2>
+    <label for="exercise">Choose a supported exercise</label>
+    <select id="exercise"><option value="squat">Squats</option><option value="jack">Jumping jacks</option></select>
+    <div class="cameraWrap">
+      <video id="video" playsinline muted></video>
+      <canvas id="overlay"></canvas>
+      <div class="cameraMsg" id="cameraMsg">Camera is off.<br>Start only when you are ready and have enough space.</div>
+    </div>
+    <div class="counter"><span id="reps">0</span><span style="font-size:15px;color:var(--muted)"> reps</span></div>
+    <div class="muted" id="poseStatus" style="text-align:center;margin:4px 0 12px">Camera not started</div>
+    <div class="controls">
+      <button class="primary" id="startBtn">Start camera</button>
+      <button id="stopBtn" class="danger" disabled>Stop</button>
+      <button id="resetBtn">Reset count</button>
+    </div>
+    <p class="notice">Camera processing runs in your browser. This app does not record or upload video. Pose estimation is experimental: keep your full body visible, use good lighting, and stop if you feel pain. Camera access normally requires HTTPS or localhost.</p>
+  </section>
+  </div>
+
+  <section class="panel">
+    <h2>WELLNESS LOG</h2>
+    <div class="two">
+      <div><label for="water">Water (glasses)</label><input id="water" type="number" min="0" max="30" value="0"></div>
+      <div><label for="sleep">Last night's sleep (hours)</label><input id="sleep" type="number" min="0" max="24" step=".5" placeholder="e.g. 8.5"></div>
+    </div>
+    <label for="note">Food / energy note (optional)</label><input id="note" maxlength="140" placeholder="e.g. Had dal, rice, vegetables and curd">
+    <button id="saveWellness" class="primary" style="margin-top:12px">Save today's log</button>
+    <p class="muted" id="wellnessStatus">Your log is stored on this device.</p>
+  </section>
+
+  <section class="panel">
+    <h2>ACHIEVEMENTS</h2>
+    <div id="achievements" class="muted">Complete quests to unlock your first achievement.</div>
+  </section>
+  <footer>THE SYSTEM • Version 1.0 • Your data stays in this browser unless you clear its site data.</footer>
+</main>
+
+<script type="module">
+import { FilesetResolver, PoseLandmarker } from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14";
+
+const $ = id => document.getElementById(id);
+const today = new Date().toISOString().slice(0,10);
+const defaultState = {xp:0, done:{}, water:0, sleep:"", note:"", questDays:0, achievements:[]};
+let state;
+try { state = {...defaultState, ...JSON.parse(localStorage.getItem("theSystemSave") || "{}")}; }
+catch { state = {...defaultState}; }
+state.done ||= {}; state.achievements ||= [];
+const save = () => localStorage.setItem("theSystemSave", JSON.stringify(state));
+const quests = [
+ {id:"train",name:"Training quest",desc:"Complete a comfortable beginner workout or planned active session.",xp:40},
+ {id:"food",name:"Nourishment quest",desc:"Eat regular, balanced meals today.",xp:20},
+ {id:"water",name:"Hydration quest",desc:"Drink water regularly throughout the day.",xp:15},
+ {id:"sleep",name:"Recovery quest",desc:"Give yourself enough time for a good night's sleep.",xp:25}
+];
+function levelInfo(xp){const level=Math.floor(xp/300)+1;return {level,within:xp%300,rank:level<3?"NOVICE":level<6?"APPRENTICE":level<10?"ADEPT":"VETERAN"};}
+function render(){
+ const info=levelInfo(state.xp);
+ $("level").textContent="LV. "+String(info.level).padStart(2,"0");
+ $("rank").textContent=info.rank+" • KEEP PROGRESSING";
+ $("xp").textContent=state.xp+" XP";
+ $("xptext").textContent=info.within+" / 300 XP to next level";
+ $("xpfill").style.width=(info.within/300*100)+"%";
+ $("streak").textContent="Quest days: "+state.questDays;
+ $("strength").textContent=info.level>=5?"Progressing":info.level>=2?"Building":"Beginner";
+ $("stamina").textContent=info.level>=5?"Progressing":info.level>=2?"Building":"Beginner";
+ $("discipline").textContent=info.level>=5?"Progressing":info.level>=2?"Building":"Beginner";
+ $("recovery").textContent="Keep it steady";
+ $("quests").innerHTML="";
+ quests.forEach(q=>{
+  const done=state.done[today]?.includes(q.id);
+  const div=document.createElement("div");div.className="quest";
+  const title=document.createElement("strong");title.textContent=(done?"✓ ":"")+q.name; if(done)title.className="done";
+  const desc=document.createElement("small");desc.textContent=q.desc;
+  const reward=document.createElement("div");reward.className="reward";reward.textContent=done?"COMPLETED":"REWARD: +"+q.xp+" XP";
+  const btn=document.createElement("button");btn.textContent=done?"Completed":"Complete quest";btn.disabled=!!done;btn.style.marginTop="10px";
+  btn.addEventListener("click",()=>completeQuest(q.id));
+  div.append(title,desc,reward,btn);$("quests").append(div);
+ });
+ const count=Object.values(state.done).reduce((n,a)=>n+n.length,0);
+ const earned=[];
+ if(count>=1)earned.push("🌱 First steps — completed your first quest");
+ if(count>=5)earned.push("⚔️ Quest learner — completed five quests");
+ if(info.level>=2)earned.push("⬆️ Level up — reached level 2");
+ $("achievements").textContent=earned.join("  •  ")||"Complete quests to unlock your first achievement.";
+}
+function completeQuest(id){
+ state.done[today] ||= [];
+ if(state.done[today].includes(id))return;
+ const q=quests.find(x=>x.id===id); if(!q)return;
+ state.done[today].push(id);state.xp+=q.xp;
+ save();render();
+}
+render();
+$("saveWellness").addEventListener("click",()=>{
+ state.water=Math.max(0,Math.min(30,Number($("water").value)||0));
+ state.sleep=$("sleep").value;state.note=$("note").value.trim();save();
+ $("wellnessStatus").textContent="Saved on this device for today.";
+});
+$("water").value=state.water||0;$("sleep").value=state.sleep||"";$("note").value=state.note||"";
+
+// Camera + MediaPipe pose verification. This is a basic rep counter, not medical-grade form checking.
+let stream=null, landmarker=null, running=false, lastVideoTime=-1, repCount=0, phase="up", lastRepAt=0;
+const video=$("video"), canvas=$("overlay"), ctx=canvas.getContext("2d");
+const exercise=$("exercise");
+const status=(s)=>$("poseStatus").textContent=s;
+function angle(a,b,c){
+ const ab=[a.x-b.x,a.y-b.y],cb=[c.x-b.x,c.y-b.y];
+ const dot=ab[0]*cb[0]+ab[1]*cb[1], mag=Math.hypot(...ab)*Math.hypot(...cb);
+ return Math.acos(Math.max(-1,Math.min(1,dot/(mag||1))))*180/Math.PI;
+}
+function visible(p){return p && (p.visibility??1)>.55;}
+async function loadModel(){
+ if(landmarker)return;
+ status("Loading pose model…");
+ const vision=await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm");
+ landmarker=await PoseLandmarker.createFromOptions(vision,{
+  baseOptions:{modelAssetPath:"https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_lite/float16/1/pose_landmarker_lite.task",delegate:"GPU"},
+  runningMode:"VIDEO",numPoses:1
+ });
+}
+function drawPose(points){
+ canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+ ctx.clearRect(0,0,canvas.width,canvas.height);
+ const links=[[11,12],[11,13],[13,15],[12,14],[14,16],[11,23],[12,24],[23,24],[23,25],[25,27],[24,26],[26,28]];
+ ctx.lineWidth=4;ctx.strokeStyle="#54dcff";ctx.fillStyle="#ffffff";
+ links.forEach(([a,b])=>{if(visible(points[a])&&visible(points[b])){ctx.beginPath();ctx.moveTo(points[a].x*canvas.width,points[a].y*canvas.height);ctx.lineTo(points[b].x*canvas.width,points[b].y*canvas.height);ctx.stroke();}});
+ points.forEach(p=>{if(visible(p)){ctx.beginPath();ctx.arc(p.x*canvas.width,p.y*canvas.height,4,0,Math.PI*2);ctx.fill();}});
+}
+function countPose(points){
+ const left=points[23],right=points[24],lk=points[25],rk=points[26],la=points[27],ra=points[28];
+ const ls=points[11],rs=points[12],le=points[13],re=points[14],lw=points[15],rw=points[16];
+ if(exercise.value==="squat"){
+  if(![left,right,lk,rk].every(visible)){status("Show hips and knees clearly");return;}
+  const avg=(angle(left,lk,la)+angle(right,rk,ra))/2;
+  status("Knee angle: "+Math.round(avg)+"° • Squat counter active");
+  if(avg<105 && phase==="up")phase="down";
+  if(avg>155 && phase==="down" && Date.now()-lastRepAt>700){repCount++;phase="up";lastRepAt=Date.now();updateRep();}
+ } else {
+  if(![ls,rs,lw,rw,la,ra].every(visible)){status("Show full body, including hands and feet");return;}
+  const handsUp=lw.y<ls.y-.06 && rw.y<rs.y-.06;
+  const feetApart=Math.abs(la.x-ra.x)>.32;
+  const handsDown=lw.y>ls.y+.04 && rw.y>rs.y+.04;
+  const feetTogether=Math.abs(la.x-ra.x)<.22;
+  status("Jumping-jack movement tracking");
+  if(handsUp&&feetApart&&phase==="up")phase="down";
+  if(handsDown&&feetTogether&&phase==="down"&&Date.now()-lastRepAt>700){repCount++;phase="up";lastRepAt=Date.now();updateRep();}
+ }
+}
+function updateRep(){
+ $("reps").textContent=repCount;
+ if(repCount>=10){
+  status("10 reps detected! Stop and review your movement.");
+  // The training quest is completed only by this local rep counter.
+  if(!state.done[today]?.includes("train"))completeQuest("train");
+ }
+}
+async function frame(){
+ if(!running)return;
+ if(video.readyState>=2 && video.currentTime!==lastVideoTime){
+  lastVideoTime=video.currentTime;
+  const result=landmarker.detectForVideo(video,performance.now());
+  if(result.landmarks?.length){drawPose(result.landmarks[0]);countPose(result.landmarks[0]);}
+  else status("No body detected — move into view");
+ }
+ requestAnimationFrame(frame);
+}
+$("startBtn").addEventListener("click",async()=>{
+ try{
+  $("startBtn").disabled=true;
+  await loadModel();
+  stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:"user",width:{ideal:640},height:{ideal:480}},audio:false});
+  video.srcObject=stream;await video.play();
+  $("cameraMsg").style.display="none";running=true;repCount=0;phase="up";$("reps").textContent="0";
+  $("stopBtn").disabled=false;status("Camera on • Position your full body in view");frame();
+ }catch(e){
+  status("Could not start camera: "+(e.message||e));
+  $("startBtn").disabled=false;
+ }
+});
+function stopCamera(){
+ running=false;
+ if(stream){stream.getTracks().forEach(t=>t.stop());stream=null;}
+ video.srcObject=null;ctx.clearRect(0,0,canvas.width,canvas.height);
+ $("cameraMsg").style.display="grid";$("stopBtn").disabled=true;$("startBtn").disabled=false;
+ status("Camera stopped");
+}
+$("stopBtn").addEventListener("click",stopCamera);
+$("resetBtn").addEventListener("click",()=>{repCount=0;phase="up";$("reps").textContent="0";status("Count reset");});
+exercise.addEventListener("change",()=>{repCount=0;phase="up";$("reps").textContent="0";status("Exercise changed. Start or continue when ready.");});
+window.addEventListener("pagehide",stopCamera);
+</script>
+</body>
+</html>
